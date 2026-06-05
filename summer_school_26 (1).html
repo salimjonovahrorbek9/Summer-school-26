@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summer School 26 — Gamification</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #F5C842;
+  --gold-dim: #C9992A;
+  --gold-soft: rgba(245,200,66,0.12);
+  --black: #0D0D0D;
+  --dark: #141414;
+  --card: #1A1A1A;
+  --border: rgba(245,200,66,0.18);
+  --text: #F0EDE6;
+  --muted: #888;
+  --green: #4CAF50;
+  --blue: #4A9EFF;
+  --red: #FF5252;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(13,13,13,0.95);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.tab-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--gold);
+  color: var(--black);
+  font-weight: 700;
+}
+
+.tab-btn:hover:not(.active) { color: var(--text); }
+
+/* VIEWS */
+.view { display: none; padding: 32px; max-width: 1100px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* LEADERBOARD */
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+.section-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+/* TOP 3 PODIUM */
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.podium-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  font-family: 'Bebas Neue', sans-serif;
+  border: 3px solid transparent;
+}
+
+.podium-item:nth-child(1) .podium-avatar { border-color: #C0C0C0; background: rgba(192,192,192,0.1); }
+.podium-item:nth-child(2) .podium-avatar { border-color: var(--gold); background: var(--gold-soft); width: 80px; height: 80px; font-size: 32px; }
+.podium-item:nth-child(3) .podium-avatar { border-color: #CD7F32; background: rgba(205,127,50,0.1); }
+
+.podium-name { font-size: 13px; font-weight: 600; text-align: center; }
+.podium-pts { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--gold); }
+.podium-rank { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+.podium-item:nth-child(1) .podium-rank { color: #C0C0C0; }
+.podium-item:nth-child(2) .podium-rank { color: var(--gold); font-size: 28px; }
+.podium-item:nth-child(3) .podium-rank { color: #CD7F32; }
+
+.podium-block {
+  width: 80px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.podium-item:nth-child(1) .podium-block { height: 70px; background: rgba(192,192,192,0.08); border: 1px solid rgba(192,192,192,0.2); }
+.podium-item:nth-child(2) .podium-block { height: 110px; background: var(--gold-soft); border: 1px solid var(--border); width: 100px; }
+.podium-item:nth-child(3) .podium-block { height: 50px; background: rgba(205,127,50,0.08); border: 1px solid rgba(205,127,50,0.2); }
+
+/* LEADERBOARD LIST */
+.lb-list { display: flex; flex-direction: column; gap: 8px; }
+
+.lb-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.lb-row:hover { border-color: var(--gold); background: rgba(245,200,66,0.04); }
+
+.lb-pos {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--muted);
+  text-align: center;
+}
+.lb-pos.top { color: var(--gold); }
+
+.lb-info { display: flex; flex-direction: column; gap: 2px; }
+.lb-name { font-weight: 600; font-size: 15px; }
+.lb-package { font-size: 12px; color: var(--muted); }
+
+.lb-pts {
+  font-family: 'DM Mono', monospace;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gold);
+  min-width: 70px;
+  text-align: right;
+}
+
+.lb-level {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
+.level-gold { background: var(--gold-soft); color: var(--gold); border: 1px solid var(--border); }
+.level-silver { background: rgba(192,192,192,0.1); color: #C0C0C0; border: 1px solid rgba(192,192,192,0.2); }
+.level-bronze { background: rgba(205,127,50,0.1); color: #CD7F32; border: 1px solid rgba(205,127,50,0.2); }
+
+.lb-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.lb-bar { height: 100%; background: var(--gold); border-radius: 4px; transition: width 0.8s ease; }
+
+/* STUDENT PROFILE PANEL */
+.profile-panel {
+  position: fixed;
+  right: -380px;
+  top: 0;
+  width: 360px;
+  height: 100vh;
+  background: var(--dark);
+  border-left: 1px solid var(--border);
+  padding: 28px 24px;
+  overflow-y: auto;
+  transition: right 0.3s ease;
+  z-index: 200;
+}
+.profile-panel.open { right: 0; }
+
+.profile-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.profile-nm { font-size: 20px; font-weight: 700; }
+.profile-pkg {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 6px;
+}
+.pkg-vip { background: var(--gold-soft); color: var(--gold); border: 1px solid var(--border); }
+.pkg-premium { background: rgba(74,158,255,0.1); color: var(--blue); border: 1px solid rgba(74,158,255,0.2); }
+.pkg-standard { background: rgba(136,136,136,0.1); color: var(--muted); border: 1px solid rgba(136,136,136,0.2); }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+}
+.stat-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.stat-box-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold); }
+.stat-box-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.prog-section { margin-top: 20px; }
+.prog-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+.prog-label span:last-child { color: var(--gold); font-family: 'DM Mono', monospace; }
+.prog-bar-lg { height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+.prog-bar-lg-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.bar-activity { background: var(--gold); }
+.bar-hw { background: var(--blue); }
+.bar-test { background: var(--green); }
+
+/* ADMIN VIEW */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.btn-gold {
+  padding: 10px 22px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-gold:hover { background: #FFD84D; transform: translateY(-1px); }
+
+.btn-outline {
+  padding: 10px 22px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--gold); background: var(--gold-soft); }
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.admin-card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 500; letter-spacing: 0.5px; }
+.form-input, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--gold); }
+.form-select option { background: var(--dark); }
+
+.pts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.pts-input-group { display: flex; flex-direction: column; gap: 4px; }
+.pts-label { font-size: 11px; color: var(--muted); }
+.pts-input {
+  padding: 8px 10px;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 15px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.pts-input:focus { border-color: var(--gold); }
+
+/* STUDENTS TABLE */
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.students-table th {
+  text-align: left;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.students-table td {
+  padding: 12px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.students-table tr:hover td { background: rgba(245,200,66,0.03); }
+
+.action-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--gold);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.action-btn:hover { background: var(--gold-soft); border-color: var(--gold); }
+
+/* ADD STUDENT MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  width: 420px;
+  max-width: 90vw;
+}
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+.modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--card);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 400;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* STATS BAR */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.stats-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.stats-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--gold); line-height: 1; }
+.stats-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+.overlay-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+.overlay-bg.open { display: block; }
+
+/* ADMIN LOGIN */
+.admin-login-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.admin-login-overlay.open { display: flex; }
+.admin-login-box {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 360px;
+  max-width: 90vw;
+  text-align: center;
+}
+.admin-login-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+.admin-login-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+.admin-login-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.admin-login-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 4px;
+  outline: none;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.admin-login-input:focus { border-color: var(--gold); }
+.admin-login-input.error { border-color: var(--red); animation: shake 0.3s ease; }
+.admin-login-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-login-btn:hover { background: #FFD84D; }
+.admin-login-cancel {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: underline;
+}
+.admin-login-cancel:hover { color: var(--text); }
+.admin-login-err {
+  font-size: 13px;
+  color: var(--red);
+  margin-top: 10px;
+  min-height: 18px;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+/* Lock icon on admin tab */
+.tab-lock { font-size: 12px; opacity: 0.6; }
+
+@media (max-width: 700px) {
+  .admin-grid { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .lb-row { grid-template-columns: 30px 1fr auto; }
+  .lb-bar-wrap, .lb-level { display: none; }
+  nav { padding: 14px 16px; }
+  .view { padding: 20px 16px; }
+  .podium { gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">SS '26</div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('leaderboard')">🏆 Reyting</button>
+    <button class="tab-btn" onclick="requestAdminAccess()">⚙️ Admin 🔒</button>
+  </div>
+</nav>
+
+<!-- LEADERBOARD VIEW -->
+<div class="view active" id="view-leaderboard">
+  <div class="section-title">REYTING JADVALI</div>
+  <p class="section-sub">Summer School 26 — Ingliz tili dasturi</p>
+
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div class="podium" id="podium"></div>
+
+  <div class="lb-list" id="lb-list"></div>
+</div>
+
+<!-- ADMIN VIEW -->
+<div class="view" id="view-admin">
+  <div class="admin-header">
+    <div>
+      <div class="section-title">ADMIN PANEL</div>
+      <p class="section-sub">O'quvchilarni boshqarish va ball qo'shish</p>
+    </div>
+    <button class="btn-gold" onclick="openModal()">+ O'quvchi qo'shish</button>
+  </div>
+
+  <div class="admin-grid">
+    <!-- Ball qo'shish -->
+    <div class="admin-card">
+      <div class="admin-card-title">BALL QO'SHISH</div>
+      <div class="form-group">
+        <label class="form-label">O'QUVCHI</label>
+        <select class="form-select" id="select-student"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">BALLAR (har kategoria uchun)</label>
+        <div class="pts-row">
+          <div class="pts-input-group">
+            <span class="pts-label">🎯 Faollik</span>
+            <input class="pts-input" type="number" id="pts-activity" value="0" min="0" max="50">
+          </div>
+          <div class="pts-input-group">
+            <span class="pts-label">📚 Homework</span>
+            <input class="pts-input" type="number" id="pts-hw" value="0" min="0" max="50">
+          </div>
+          <div class="pts-input-group">
+            <span class="pts-label">📝 Test</span>
+            <input class="pts-input" type="number" id="pts-test" value="0" min="0" max="100">
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button class="btn-gold" onclick="addPoints()" style="flex:1">✓ Saqlash</button>
+        <button class="btn-outline" onclick="resetInputs()">↺ Tozalash</button>
+      </div>
+    </div>
+
+    <!-- Ball olib tashlash -->
+    <div class="admin-card">
+      <div class="admin-card-title">BALL OLIB TASHLASH</div>
+      <div class="form-group">
+        <label class="form-label">O'QUVCHI</label>
+        <select class="form-select" id="select-student-remove"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">OLIB TASHLASH MIQDORI</label>
+        <div class="pts-row">
+          <div class="pts-input-group">
+            <span class="pts-label">🎯 Faollik</span>
+            <input class="pts-input" type="number" id="rem-activity" value="0" min="0">
+          </div>
+          <div class="pts-input-group">
+            <span class="pts-label">📚 Homework</span>
+            <input class="pts-input" type="number" id="rem-hw" value="0" min="0">
+          </div>
+          <div class="pts-input-group">
+            <span class="pts-label">📝 Test</span>
+            <input class="pts-input" type="number" id="rem-test" value="0" min="0">
+          </div>
+        </div>
+      </div>
+      <button class="btn-outline" onclick="removePoints()" style="width:100%;margin-top:6px;border-color:var(--red);color:var(--red);">− Ball olib tashlash</button>
+    </div>
+  </div>
+
+  <!-- Students Table -->
+  <div class="admin-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="admin-card-title" style="margin-bottom:0">BARCHA O'QUVCHILAR</div>
+      <input class="form-input" placeholder="Qidirish..." style="width:200px" id="search-input" oninput="renderTable()">
+    </div>
+    <table class="students-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ISM</th>
+          <th>PAKET</th>
+          <th>FAOLLIK</th>
+          <th>HW</th>
+          <th>TEST</th>
+          <th>JAMI</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="students-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Profile Panel -->
+<div class="overlay-bg" id="overlay-bg" onclick="closeProfile()"></div>
+<div class="profile-panel" id="profile-panel">
+  <button class="profile-close" onclick="closeProfile()">✕</button>
+  <div id="profile-content"></div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-overlay" id="modal" onclick="e => e.target===this && closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">YANGI O'QUVCHI</div>
+    <div class="form-group">
+      <label class="form-label">TO'LIQ ISM</label>
+      <input class="form-input" id="new-name" placeholder="Ism Familiya">
+    </div>
+    <div class="form-group">
+      <label class="form-label">PAKET</label>
+      <select class="form-select" id="new-package">
+        <option value="Standard">Standard</option>
+        <option value="Premium">Premium</option>
+        <option value="VIP">VIP</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-gold" onclick="addStudent()" style="flex:1">Qo'shish</button>
+      <button class="btn-outline" onclick="closeModal()">Bekor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div class="admin-login-overlay" id="admin-login-overlay">
+  <div class="admin-login-box">
+    <div class="admin-login-icon">🔐</div>
+    <div class="admin-login-title">ADMIN PANEL</div>
+    <div class="admin-login-sub">Kirish uchun parolni kiriting</div>
+    <input class="admin-login-input" type="password" id="admin-password-input" placeholder="••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter') checkAdminPassword()">
+    <button class="admin-login-btn" onclick="checkAdminPassword()">Kirish</button>
+    <div class="admin-login-err" id="admin-login-err"></div>
+    <button class="admin-login-cancel" onclick="closeAdminLogin()">Bekor qilish</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const STORAGE_KEY = 'ss26_students';
+
+const defaultStudents = [
+  { id: 1, name: "Aziz Karimov", package: "VIP", activity: 180, hw: 160, test: 210 },
+  { id: 2, name: "Malika Yusupova", package: "Premium", activity: 170, hw: 150, test: 195 },
+  { id: 3, name: "Jasur Toshmatov", package: "VIP", activity: 155, hw: 145, test: 185 },
+  { id: 4, name: "Nilufar Rahimova", package: "Premium", activity: 140, hw: 130, test: 170 },
+  { id: 5, name: "Bobur Umarov", package: "Standard", activity: 130, hw: 120, test: 155 },
+  { id: 6, name: "Dildora Hasanova", package: "VIP", activity: 125, hw: 115, test: 145 },
+  { id: 7, name: "Sherzod Mirzayev", package: "Premium", activity: 110, hw: 100, test: 130 },
+  { id: 8, name: "Zulfiya Ergasheva", package: "Standard", activity: 95, hw: 90, test: 115 },
+];
+
+function loadStudents() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : defaultStudents;
+  } catch { return defaultStudents; }
+}
+
+function saveStudents(students) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(students)); } catch {}
+}
+
+let students = loadStudents();
+let nextId = Math.max(...students.map(s => s.id), 0) + 1;
+
+function total(s) { return s.activity + s.hw + s.test; }
+
+function sorted() {
+  return [...students].sort((a, b) => total(b) - total(a));
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function getLevel(pts) {
+  if (pts >= 400) return { label: 'GOLD', cls: 'level-gold' };
+  if (pts >= 250) return { label: 'SILVER', cls: 'level-silver' };
+  return { label: 'BRONZE', cls: 'level-bronze' };
+}
+
+function getInitial(name) { return name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase(); }
+
+function pkgClass(pkg) {
+  if (pkg === 'VIP') return 'pkg-vip';
+  if (pkg === 'Premium') return 'pkg-premium';
+  return 'pkg-standard';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── STATS BAR ─────────────────────────────────────────
+function renderStats() {
+  const total_pts = students.reduce((s, x) => s + total(x), 0);
+  const avg = students.length ? Math.round(total_pts / students.length) : 0;
+  const top = sorted()[0];
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stats-box"><div class="stats-val">${students.length}</div><div class="stats-lbl">Jami o'quvchi</div></div>
+    <div class="stats-box"><div class="stats-val">${students.filter(s=>s.package==='VIP').length}</div><div class="stats-lbl">VIP o'quvchi</div></div>
+    <div class="stats-box"><div class="stats-val">${avg}</div><div class="stats-lbl">O'rtacha ball</div></div>
+    <div class="stats-box"><div class="stats-val">${top ? total(top) : 0}</div><div class="stats-lbl">Eng yuqori ball</div></div>
+  `;
+}
+
+// ── PODIUM ────────────────────────────────────────────
+function renderPodium() {
+  const top3 = sorted().slice(0, 3);
+  if (top3.length < 3) { document.getElementById('podium').innerHTML = ''; return; }
+  const order = [top3[1], top3[0], top3[2]];
+  const ranks = ['🥈 2', '🥇 1', '🥉 3'];
+  document.getElementById('podium').innerHTML = order.map((s, i) => `
+    <div class="podium-item" onclick="openProfile(${s.id})">
+      <div class="podium-avatar">${getInitial(s.name)}</div>
+      <div class="podium-name">${s.name.split(' ')[0]}</div>
+      <div class="podium-pts">${total(s)} pt</div>
+      <div class="podium-block"></div>
+      <div class="podium-rank">${ranks[i]}</div>
+    </div>
+  `).join('');
+}
+
+// ── LEADERBOARD ───────────────────────────────────────
+function renderLeaderboard() {
+  const list = sorted();
+  const maxPts = total(list[0]) || 1;
+  document.getElementById('lb-list').innerHTML = list.map((s, i) => {
+    const pts = total(s);
+    const lvl = getLevel(pts);
+    const pct = Math.round(pts / maxPts * 100);
+    return `
+      <div class="lb-row" onclick="openProfile(${s.id})">
+        <div class="lb-pos ${i < 3 ? 'top' : ''}">${i + 1}</div>
+        <div class="lb-info">
+          <div class="lb-name">${s.name}</div>
+          <div class="lb-package">${s.package}</div>
+        </div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%"></div></div>
+        <div class="lb-level ${lvl.cls}">${lvl.label}</div>
+        <div class="lb-pts">${pts} pt</div>
+      </div>`;
+  }).join('');
+}
+
+// ── PROFILE PANEL ─────────────────────────────────────
+function openProfile(id) {
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  const pts = total(s);
+  const rank = sorted().findIndex(x => x.id === id) + 1;
+  const maxPts = total(sorted()[0]) || 1;
+  document.getElementById('profile-content').innerHTML = `
+    <div class="profile-avatar-lg">${getInitial(s.name)}</div>
+    <div class="profile-nm">${s.name}</div>
+    <span class="profile-pkg ${pkgClass(s.package)}">${s.package}</span>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-box-val">#${rank}</div><div class="stat-box-label">Reyting o'rni</div></div>
+      <div class="stat-box"><div class="stat-box-val">${pts}</div><div class="stat-box-label">Jami ball</div></div>
+      <div class="stat-box"><div class="stat-box-val">${s.activity}</div><div class="stat-box-label">Faollik</div></div>
+      <div class="stat-box"><div class="stat-box-val">${s.hw}</div><div class="stat-box-label">Homework</div></div>
+    </div>
+    <div class="prog-section">
+      <div class="prog-label"><span>🎯 Dars faolligi</span><span>${s.activity} pt</span></div>
+      <div class="prog-bar-lg"><div class="prog-bar-lg-fill bar-activity" style="width:${Math.min(100,s.activity/maxPts*100)}%"></div></div>
+      <div class="prog-label"><span>📚 Homework</span><span>${s.hw} pt</span></div>
+      <div class="prog-bar-lg"><div class="prog-bar-lg-fill bar-hw" style="width:${Math.min(100,s.hw/maxPts*100)}%"></div></div>
+      <div class="prog-label"><span>📝 Test natijalari</span><span>${s.test} pt</span></div>
+      <div class="prog-bar-lg"><div class="prog-bar-lg-fill bar-test" style="width:${Math.min(100,s.test/maxPts*100)}%"></div></div>
+    </div>
+  `;
+  document.getElementById('profile-panel').classList.add('open');
+  document.getElementById('overlay-bg').classList.add('open');
+}
+
+function closeProfile() {
+  document.getElementById('profile-panel').classList.remove('open');
+  document.getElementById('overlay-bg').classList.remove('open');
+}
+
+// ── ADMIN TABLE ───────────────────────────────────────
+function renderTable() {
+  const q = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const list = sorted().filter(s => s.name.toLowerCase().includes(q));
+  document.getElementById('students-tbody').innerHTML = list.map((s, i) => `
+    <tr>
+      <td style="color:var(--muted);font-family:'DM Mono',monospace">${i+1}</td>
+      <td style="font-weight:600">${s.name}</td>
+      <td><span class="profile-pkg ${pkgClass(s.package)}" style="font-size:11px;padding:3px 8px">${s.package}</span></td>
+      <td style="color:var(--gold);font-family:'DM Mono',monospace">${s.activity}</td>
+      <td style="color:var(--blue);font-family:'DM Mono',monospace">${s.hw}</td>
+      <td style="color:var(--green);font-family:'DM Mono',monospace">${s.test}</td>
+      <td style="font-weight:700;font-family:'DM Mono',monospace">${total(s)}</td>
+      <td><button class="action-btn" onclick="openProfile(${s.id})">Ko'rish</button></td>
+    </tr>
+  `).join('');
+}
+
+function populateSelects() {
+  const opts = students.map(s => `<option value="${s.id}">${s.name} (${s.package})</option>`).join('');
+  document.getElementById('select-student').innerHTML = opts;
+  document.getElementById('select-student-remove').innerHTML = opts;
+}
+
+// ── ACTIONS ───────────────────────────────────────────
+function addPoints() {
+  const id = parseInt(document.getElementById('select-student').value);
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  s.activity += parseInt(document.getElementById('pts-activity').value) || 0;
+  s.hw += parseInt(document.getElementById('pts-hw').value) || 0;
+  s.test += parseInt(document.getElementById('pts-test').value) || 0;
+  saveStudents(students);
+  renderAll();
+  showToast(`✓ ${s.name}ga ball qo'shildi`);
+  resetInputs();
+}
+
+function removePoints() {
+  const id = parseInt(document.getElementById('select-student-remove').value);
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  s.activity = Math.max(0, s.activity - (parseInt(document.getElementById('rem-activity').value) || 0));
+  s.hw = Math.max(0, s.hw - (parseInt(document.getElementById('rem-hw').value) || 0));
+  s.test = Math.max(0, s.test - (parseInt(document.getElementById('rem-test').value) || 0));
+  saveStudents(students);
+  renderAll();
+  showToast(`− ${s.name}dan ball olib tashlandi`);
+}
+
+function resetInputs() {
+  ['pts-activity','pts-hw','pts-test'].forEach(id => document.getElementById(id).value = 0);
+}
+
+function addStudent() {
+  const name = document.getElementById('new-name').value.trim();
+  if (!name) { showToast('Ism kiriting!'); return; }
+  const pkg = document.getElementById('new-package').value;
+  students.push({ id: nextId++, name, package: pkg, activity: 0, hw: 0, test: 0 });
+  saveStudents(students);
+  renderAll();
+  closeModal();
+  showToast(`✓ ${name} qo'shildi`);
+  document.getElementById('new-name').value = '';
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── ADMIN PASSWORD ────────────────────────────────────
+const ADMIN_PASSWORD = 'ss26admin';
+let adminUnlocked = false;
+
+function requestAdminAccess() {
+  if (adminUnlocked) {
+    switchTabDirect('admin');
+    return;
+  }
+  document.getElementById('admin-login-overlay').classList.add('open');
+  document.getElementById('admin-password-input').value = '';
+  document.getElementById('admin-login-err').textContent = '';
+  setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
+}
+
+function checkAdminPassword() {
+  const val = document.getElementById('admin-password-input').value;
+  if (val === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    closeAdminLogin();
+    switchTabDirect('admin');
+    showToast('✓ Admin paneliga xush kelibsiz!');
+  } else {
+    const inp = document.getElementById('admin-password-input');
+    inp.classList.add('error');
+    document.getElementById('admin-login-err').textContent = '❌ Parol noto\'g\'ri!';
+    setTimeout(() => inp.classList.remove('error'), 400);
+    inp.value = '';
+  }
+}
+
+function closeAdminLogin() {
+  document.getElementById('admin-login-overlay').classList.remove('open');
+}
+
+function switchTabDirect(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const btns = document.querySelectorAll('.tab-btn');
+  if (tab === 'leaderboard') btns[0].classList.add('active');
+  else btns[1].classList.add('active');
+  document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'admin') { renderTable(); populateSelects(); }
+}
+
+// ── TABS ──────────────────────────────────────────────
+function switchTab(tab) {
+  if (tab === 'admin' && !adminUnlocked) { requestAdminAccess(); return; }
+  switchTabDirect(tab);
+}
+
+// ── RENDER ALL ────────────────────────────────────────
+function renderAll() {
+  renderStats();
+  renderPodium();
+  renderLeaderboard();
+  renderTable();
+  populateSelects();
+}
+
+renderAll();
+</script>
+</body>
+</html>
