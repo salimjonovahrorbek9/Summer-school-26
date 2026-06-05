@@ -913,7 +913,10 @@ function renderTable() {
       <td style="color:var(--blue);font-family:'DM Mono',monospace">${s.hw}</td>
       <td style="color:var(--green);font-family:'DM Mono',monospace">${s.test}</td>
       <td style="font-weight:700;font-family:'DM Mono',monospace">${total(s)}</td>
-      <td><button class="action-btn" onclick="openProfile(${s.id})">Ko'rish</button></td>
+      <td style="display:flex;gap:6px;align-items:center">
+        <button class="action-btn" onclick="openProfile(${s.id})">Ko'rish</button>
+        <button class="action-btn" onclick="deleteStudent(${s.id})" style="border-color:var(--red);color:var(--red)">O'chirish</button>
+      </td>
     </tr>
   `).join('');
 }
@@ -964,6 +967,16 @@ function addStudent() {
   closeModal();
   showToast(`✓ ${name} qo'shildi`);
   document.getElementById('new-name').value = '';
+}
+
+function deleteStudent(id) {
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`"${s.name}" ni o'chirishni tasdiqlaysizmi?`)) return;
+  students = students.filter(x => x.id !== id);
+  saveStudents(students);
+  renderAll();
+  showToast(`✓ ${s.name} o'chirildi`);
 }
 
 // ── MODAL ─────────────────────────────────────────────
